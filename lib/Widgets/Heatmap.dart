@@ -156,13 +156,19 @@ class _HeatMapGridState extends State<HeatMapGrid> {
     groupedData.sort((a, b) => a['userName'].compareTo(b['userName']));
     setState(() {});
   }
-  String truncateName(String name) {
-    if (name.length > 12) {
-      return name.substring(0, 12) + ".";
-    }
-    return name;
-  }
 
+  String truncateName(String name) {
+    List<String> parts = name.split(' ');
+    if (parts.isEmpty) {
+      return ""; // Return an empty string if no parts found
+    }
+    String firstName = parts[0].length > 10 ? parts[0].substring(0, 10) : parts[0];
+    if (parts.length > 1 && parts[1].isNotEmpty) {
+      String secondNameInitial = parts[1].substring(0, 1);
+      return '$firstName.$secondNameInitial';
+    }
+    return firstName;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,8 +213,6 @@ class _HeatMapGridState extends State<HeatMapGrid> {
           child: ListView.builder(
             itemCount: rowNames.length,
             itemBuilder: (context, rowIndex) {
-              String rowName = userCodes[rowIndex];
-              List<String> rowNameParts = rowName.split(' ');
               return Container(
                 height: 50,
                 child: Row(
@@ -221,9 +225,9 @@ class _HeatMapGridState extends State<HeatMapGrid> {
                         onTap: () {
                           setState(() {
                             if (selectedRow == rowIndex) {
-                              selectedRow = -1; // deselect if already selected
+                              selectedRow = -1;
                             } else {
-                              selectedRow = rowIndex; // select the current row
+                              selectedRow = rowIndex;
                             }
                           });
                         },
@@ -231,14 +235,9 @@ class _HeatMapGridState extends State<HeatMapGrid> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                selectedRow == rowIndex
-                                    ? rowNameParts[0]
-                                    : truncateName(rowNameParts.length > 0 ? rowNameParts[0] : "")
-                            ),
-                            Text(
-                                selectedRow == rowIndex
-                                    ? rowNameParts.length > 1 ? rowNameParts[1] : ""
-                                    : truncateName(rowNameParts.length > 1 ? rowNameParts[1] : "")
+                              selectedRow == rowIndex
+                                  ? rowNames[rowIndex]
+                                  : truncateName(rowNames[rowIndex]),
                             ),
                           ],
                         ),
